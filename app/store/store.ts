@@ -1,56 +1,56 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { v4 as uuidv4 } from "uuid";
 import type { Task } from "~/types/Task";
 import type { User } from "~/types/User";
 
 export const useCounterStore = defineStore("store", () => {
   const showDrawer = ref(false);
+  const tasks = ref<Task[]>([]);
+  const users = ref<User[]>([]);
+  const title = ref<string>("");
+  const text = ref<string>("");
+  const verantwotlicher = ref<string>("");
 
   const toggleDrawer = () => {
     showDrawer.value = !showDrawer.value;
   };
 
-  const tasks = ref<Task[]>([]);
-  const text = ref<string>("");
-  const title = ref<string>(" ");
-  const user = ref<User>();
-  const verantwotlicher = ref<string>("");
-  const addTask = (description: string, user: string) => {
-    const newTask = {
-      id: uuidv4(),
-      title: title.value,
-      description,
-      user: verantwotlicher.value,
-    };
-    if (description.trim() !== "") {
-      tasks.value.push(newTask);
-      title.value = "";
-      text.value = "";
-      verantwotlicher.value = user;
-    }
+  const fetchUsers = async () => {
+    users.value = await $fetch<User[]>("/api/users");
   };
 
-  const users = ref<User[]>([
-    {
-      id: uuidv4(),
-      name: "John Doe",
-    },
-    {
-      id: uuidv4(),
-      name: "Jane Smith",
-    },
-  ]);
+  const fetchTasks = async () => {
+    const data = await $fetch<any[]>("/api/tasks");
+    tasks.value = data.map((t) => ({
+      id: t.id,
+      title: t.title,
+      description: t.description,
+      user: t.user?.name ?? "",
+    }));
+  };
+
+  const addTask = async (description: string, userName: string) => {
+    if (!title.value.trim() || !description.trim()) return;
+    await $fetch("/api/tasks", {
+      method: "POST",
+      body: { title: title.value, description, userName },
+    });
+    title.value = "";
+    text.value = "";
+    verantwotlicher.value = "";
+    await fetchTasks();
+  };
 
   return {
     showDrawer,
     tasks,
-    toggleDrawer,
-    addTask,
-    text,
     users,
-    user,
     title,
+    text,
     verantwotlicher,
+    toggleDrawer,
+    fetchUsers,
+    fetchTasks,
+    addTask,
   };
 });

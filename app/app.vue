@@ -1,7 +1,11 @@
 <script setup lang="ts">
-useHead({
-  title: "Task",
-});
+import { useCounterStore } from "~/store/store";
+
+useHead({ title: "Task" });
+
+const store = useCounterStore();
+await store.fetchUsers();
+await store.fetchTasks();
 </script>
 
 <template>
