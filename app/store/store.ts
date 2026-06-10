@@ -26,6 +26,7 @@ export const useCounterStore = defineStore("store", () => {
       title: t.title,
       description: t.description,
       user: t.user?.name ?? "",
+      userId: t.userId,
     }));
   };
 

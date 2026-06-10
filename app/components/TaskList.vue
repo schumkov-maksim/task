@@ -2,20 +2,39 @@
 import { storeToRefs } from "pinia";
 import { useCounterStore } from "../store/store";
 
-const { tasks } = storeToRefs(useCounterStore());
+const { tasks, users } = storeToRefs(useCounterStore());
+
+const selectedUser = ref("");
+
+const filteredTasks = computed(() => {
+  if (!selectedUser.value) {
+    return tasks.value;
+  }
+  return tasks.value.filter((task) => task.userId === selectedUser.value);
+});
 </script>
 
 <template>
   <div class="max-w-5xl mx-auto px-6 py-8">
     <h2 class="text-2xl font-semibold text-slate-800 mb-6">Tasks</h2>
 
-    <p v-if="tasks.length === 0" class="text-slate-400 text-sm">
+    <select
+      v-model="selectedUser"
+      class="mb-4 p-2 border border-slate-300 rounded"
+    >
+      <option value="">All Users</option>
+      <option v-for="user in users" :key="user.id" :value="user.id">
+        {{ user.name }}
+      </option>
+    </select>
+
+    <p v-if="filteredTasks.length === 0" class="text-slate-400 text-sm">
       No tasks yet. Click "Add Task" to get started.
     </p>
 
     <ul v-else class="space-y-3">
       <li
-        v-for="task in tasks"
+        v-for="task in filteredTasks"
         :key="task.id"
         class="bg-white border border-slate-200 rounded-xl px-5 py-4 flex items-start justify-between shadow-sm"
       >
