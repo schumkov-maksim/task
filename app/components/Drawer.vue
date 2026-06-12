@@ -37,7 +37,7 @@ const { toggleDrawer, addTask } = store;
               placeholder="Task title"
               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
-
+            
             <label class="block text-sm font-medium text-slate-700 mb-1"
               >Description</label
             >

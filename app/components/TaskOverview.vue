@@ -1,26 +1,29 @@
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 import { useCounterStore } from "../store/store";
+import { Status } from "~/enums/enums";
+
+const statusOptions = [
+  { label: "Todo", value: Status.todo },
+  { label: "In Progress", value: Status.progress },
+  { label: "Done", value: Status.done },
+];
 
 const store = useCounterStore();
 const { showTaskOverview, TaskId, tasks } = storeToRefs(store);
-const { changeShowTaskOverview } = store;
+const { changeShowTaskOverview, addComment: storeAddComment, updateTaskStatus } = store;
 
 const selectedTask = computed(() =>
   tasks.value.find((task) => task.id === TaskId.value),
 );
 
-const addComment = () => {
-  if (comment.value.trim() && selectedTask.value) {
-    if (!selectedTask.value.comments) {
-      selectedTask.value.comments = [];
-    }
-    selectedTask.value.comments.push(comment.value.trim());
-    comment.value = "";
-  }
-};
-
 const comment = ref("");
+
+const addComment = async () => {
+  if (!comment.value.trim() || !selectedTask.value) return;
+  await storeAddComment(selectedTask.value.id, comment.value.trim());
+  comment.value = "";
+};
 </script>
 
 <template>
@@ -73,11 +76,30 @@ const comment = ref("");
               <div
                 class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold"
               >
-                {{ selectedTask.user.charAt(0).toUpperCase() }}
+                {{ selectedTask.user.name.charAt(0).toUpperCase() }}
               </div>
-              <span class="text-sm text-slate-700">{{
-                selectedTask.user
-              }}</span>
+              <span class="text-sm text-slate-700">{{ selectedTask.user.name }}</span>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">
+              Status
+            </p>
+            <div class="relative">
+              <select
+                :value="selectedTask?.status"
+                @change="selectedTask && updateTaskStatus(selectedTask.id, Number(($event.target as HTMLSelectElement).value))"
+                class="w-full appearance-none pl-3 pr-8 py-2 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+              >
+                <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
+              </select>
+              <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
           </div>
 

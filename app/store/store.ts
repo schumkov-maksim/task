@@ -32,17 +32,33 @@ export const useCounterStore = defineStore("store", () => {
       id: t.id,
       title: t.title,
       description: t.description,
-      user: t.user?.name ?? "",
-      userId: t.userId,
+      user: t.user ?? null,
       comments: t.comments ?? [],
+      status: t.status ?? null,
     }));
+  };
+
+  const updateTaskStatus = async (taskId: string, status: number) => {
+    await $fetch(`/api/tasks/${taskId}/status`, {
+      method: "PATCH",
+      body: { status },
+    });
+    await fetchTasks();
+  };
+
+  const addComment = async (taskId: string, comment: string) => {
+    await $fetch(`/api/tasks/${taskId}/comment`, {
+      method: "POST",
+      body: { comment },
+    });
+    await fetchTasks();
   };
 
   const addTask = async (description: string, userName: string) => {
     if (!title.value.trim() || !description.trim()) return;
     await $fetch("/api/tasks", {
       method: "POST",
-      body: { title: title.value, description, userName },
+      body: { title: title.value, description, userName, status: 0 },
     });
     title.value = "";
     text.value = "";
@@ -64,5 +80,7 @@ export const useCounterStore = defineStore("store", () => {
     showTaskOverview,
     changeShowTaskOverview,
     TaskId,
+    addComment,
+    updateTaskStatus,
   };
 });

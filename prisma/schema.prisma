@@ -14,9 +14,11 @@ model User {
 }
 
 model Task {
-  id          String  @id @default(uuid())
+  id          String   @id @default(uuid())
   title       String
   description String
+  comments    String[]
+  status      Int      @default(0)
   userId      String?
-  user        User?   @relation(fields: [userId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
 }

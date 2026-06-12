@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
     data: {
       title: body.title,
       description: body.description,
+      status: body.status ?? 0,
       userId: user?.id ?? null,
     },
     include: { user: true },
