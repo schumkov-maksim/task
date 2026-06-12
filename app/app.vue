@@ -13,6 +13,7 @@ await store.fetchTasks();
     <NuxtPage />
   </NuxtLayout>
   <div class="container mx-auto p-4">
+    <TaskOverview />
     <TaskList />
   </div>
 </template>

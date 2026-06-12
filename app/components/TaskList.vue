@@ -2,7 +2,9 @@
 import { storeToRefs } from "pinia";
 import { useCounterStore } from "../store/store";
 
-const { tasks, users } = storeToRefs(useCounterStore());
+const store = useCounterStore();
+const { tasks, users } = storeToRefs(store);
+const { changeShowTaskOverview } = store;
 
 const selectedUser = ref("");
 
@@ -36,6 +38,7 @@ const filteredTasks = computed(() => {
       <li
         v-for="task in filteredTasks"
         :key="task.id"
+        @click="changeShowTaskOverview(task.id)"
         class="bg-white border border-slate-200 rounded-xl px-5 py-4 flex items-start justify-between shadow-sm"
       >
         <div class="">
@@ -48,6 +51,8 @@ const filteredTasks = computed(() => {
         >
           {{ task.user }}
         </span>
+
+        {{ task.comments }}
       </li>
     </ul>
   </div>

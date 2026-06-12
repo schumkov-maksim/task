@@ -4,6 +4,7 @@ interface Task {
   description: string;
   user: string;
   userId: string;
+  comments: string[];
 }
 
 export type { Task };

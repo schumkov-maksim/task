@@ -9,10 +9,17 @@ export const useCounterStore = defineStore("store", () => {
   const users = ref<User[]>([]);
   const title = ref<string>("");
   const text = ref<string>("");
+  const showTaskOverview = ref<boolean>(false);
   const verantwotlicher = ref<string>("");
+  const TaskId = ref<string>("");
 
   const toggleDrawer = () => {
     showDrawer.value = !showDrawer.value;
+  };
+
+  const changeShowTaskOverview = (id: string) => {
+    TaskId.value = id;
+    showTaskOverview.value = !showTaskOverview.value;
   };
 
   const fetchUsers = async () => {
@@ -27,6 +34,7 @@ export const useCounterStore = defineStore("store", () => {
       description: t.description,
       user: t.user?.name ?? "",
       userId: t.userId,
+      comments: t.comments ?? [],
     }));
   };
 
@@ -53,5 +61,8 @@ export const useCounterStore = defineStore("store", () => {
     fetchUsers,
     fetchTasks,
     addTask,
+    showTaskOverview,
+    changeShowTaskOverview,
+    TaskId,
   };
 });
