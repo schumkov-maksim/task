@@ -6,12 +6,12 @@ Eine Nuxt 4 Webanwendung zur Verwaltung von Aufgaben mit PostgreSQL-Datenbank ü
 
 ## Tech Stack
 
-| Schicht | Technologie |
-|---|---|
-| Frontend | Nuxt 4, Vue 3, Pinia, Tailwind CSS |
-| Backend | Nitro (Nuxt Server Engine) |
-| Datenbank | PostgreSQL 16 (Docker) |
-| ORM | Prisma 7 mit `@prisma/adapter-pg` |
+| Schicht   | Technologie                        |
+| --------- | ---------------------------------- |
+| Frontend  | Nuxt 4, Vue 3, Pinia, Tailwind CSS |
+| Backend   | Nitro (Nuxt Server Engine)         |
+| Datenbank | PostgreSQL 16 (Docker)             |
+| ORM       | Prisma 7 mit `@prisma/adapter-pg`  |
 
 ---
 
@@ -135,21 +135,22 @@ Die App ist erreichbar unter **http://localhost:3000**
 
 ## Nützliche Befehle
 
-| Befehl | Beschreibung |
-|---|---|
-| `docker compose up -d` | PostgreSQL starten |
-| `docker compose down` | PostgreSQL stoppen |
-| `npm run dev` | Nuxt Entwicklungsserver starten |
-| `npx prisma studio` | Datenbank-Browser öffnen (http://localhost:5555) |
-| `npx prisma migrate dev` | Schema-Änderungen in die DB übernehmen |
-| `npx prisma generate` | Prisma Client neu generieren |
-| `npm run db:seed` | Beispiel-Benutzer in die DB eintragen |
+| Befehl                   | Beschreibung                                     |
+| ------------------------ | ------------------------------------------------ |
+| `docker compose up -d`   | PostgreSQL starten                               |
+| `docker compose down`    | PostgreSQL stoppen                               |
+| `npm run dev`            | Nuxt Entwicklungsserver starten                  |
+| `npx prisma studio`      | Datenbank-Browser öffnen (http://localhost:5555) |
+| `npx prisma migrate dev` | Schema-Änderungen in die DB übernehmen           |
+| `npx prisma generate`    | Prisma Client neu generieren                     |
+| `npm run db:seed`        | Beispiel-Benutzer in die DB eintragen            |
 
 ---
 
 ## API-Endpunkte
 
 ### `GET /api/users`
+
 Gibt alle Benutzer aus der Datenbank zurück.
 
 ```json
@@ -160,6 +161,7 @@ Gibt alle Benutzer aus der Datenbank zurück.
 ```
 
 ### `GET /api/tasks`
+
 Gibt alle Aufgaben inkl. zugewiesenem Benutzer zurück.
 
 ```json
@@ -175,9 +177,11 @@ Gibt alle Aufgaben inkl. zugewiesenem Benutzer zurück.
 ```
 
 ### `POST /api/tasks`
+
 Erstellt eine neue Aufgabe in der Datenbank.
 
 **Request Body:**
+
 ```json
 {
   "title": "Neue Aufgabe",
@@ -194,6 +198,10 @@ Erstellt eine neue Aufgabe in der Datenbank.
 DATABASE_URL="postgresql://postgres:password@localhost:5432/mydb"
 ```
 
-| Variable | Beschreibung |
-|---|---|
+| Variable       | Beschreibung                             |
+| -------------- | ---------------------------------------- |
 | `DATABASE_URL` | Verbindungs-URL zur PostgreSQL-Datenbank |
+
+## john@example.com / password123
+
+## jane@example.com / password123

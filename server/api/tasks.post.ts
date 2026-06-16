@@ -1,20 +1,27 @@
-import { defineEventHandler, readBody } from "h3";
 import prisma from "../utils/prisma";
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
+  const session = await requireUserSession(event);
+  const { title, description, assigneeId, deadline, boardId } = await readBody(event);
 
-  const user = body.userName
-    ? await prisma.user.findFirst({ where: { name: body.userName } })
-    : null;
+  if (!title?.trim()) {
+    throw createError({ statusCode: 400, message: "Titel ist erforderlich." });
+  }
 
   return await prisma.task.create({
     data: {
-      title: body.title,
-      description: body.description,
-      status: body.status ?? 0,
-      userId: user?.id ?? null,
+      title: title.trim(),
+      description: description?.trim() ?? "",
+      createdById: session.user.id,
+      assigneeId: assigneeId || null,
+      boardId: boardId || null,
+      deadline: deadline ? new Date(deadline) : null,
     },
-    include: { user: true },
+    include: {
+      board: { select: { id: true, name: true } },
+      assignee: { select: { id: true, name: true } },
+      createdBy: { select: { id: true, name: true } },
+      comments: true,
+    },
   });
 });

@@ -1,12 +1,14 @@
-import { Status } from "~/enums/enums";
+import type { Comment } from "./Comment";
 
-interface Task {
+export interface Task {
   id: string;
   title: string;
   description: string;
-  user: { id: string; name: string } | null;
-  comments: string[];
-  status: Status;
+  status: number;
+  createdBy: { id: string; name: string };
+  assignee: { id: string; name: string } | null;
+  board: { id: string; name: string } | null;
+  comments: Comment[];
+  deadline: string | null;
+  createdAt: string;
 }
-
-export type { Task };

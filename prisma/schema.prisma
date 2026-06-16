@@ -8,17 +8,51 @@ datasource db {
 }
 
 model User {
-  id    String @id @default(uuid())
-  name  String
-  tasks Task[]
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  createdTasks  Task[]    @relation("CreatedBy")
+  assignedTasks Task[]    @relation("AssignedTo")
+  comments      Comment[]
+  boards        Board[]
+  createdAt     DateTime  @default(now())
+}
+
+model Board {
+  id        String   @id @default(uuid())
+  name      String
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  tasks     Task[]
+  createdAt DateTime @default(now())
 }
 
 model Task {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   title       String
   description String
-  comments    String[]
-  status      Int      @default(0)
-  userId      String?
-  user        User?    @relation(fields: [userId], references: [id])
+  status      Int       @default(0)
+  createdById String
+  createdBy   User      @relation("CreatedBy", fields: [createdById], references: [id])
+  assigneeId  String?
+  assignee    User?     @relation("AssignedTo", fields: [assigneeId], references: [id])
+  boardId     String?
+  board       Board?    @relation(fields: [boardId], references: [id])
+  comments    Comment[]
+  deadline    DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model Comment {
+  id        String    @id @default(uuid())
+  content   String
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  taskId    String
+  task      Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?  @relation("Replies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("Replies")
+  createdAt DateTime  @default(now())
 }
