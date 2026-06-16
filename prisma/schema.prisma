@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
+  id            String         @id @default(uuid())
   name          String
-  email         String    @unique
+  email         String         @unique
   passwordHash  String
-  createdTasks  Task[]    @relation("CreatedBy")
-  assignedTasks Task[]    @relation("AssignedTo")
+  createdTasks  Task[]         @relation("CreatedBy")
+  assignedTasks Task[]         @relation("AssignedTo")
   comments      Comment[]
   boards        Board[]
-  createdAt     DateTime  @default(now())
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
 }
 
 model Board {
@@ -29,24 +30,25 @@ model Board {
 }
 
 model Task {
-  id          String    @id @default(uuid())
-  title       String
-  description String
-  status      Int       @default(0)
-  createdById String
-  createdBy   User      @relation("CreatedBy", fields: [createdById], references: [id])
-  assigneeId  String?
-  assignee    User?     @relation("AssignedTo", fields: [assigneeId], references: [id])
-  boardId     String?
-  board       Board?    @relation(fields: [boardId], references: [id])
-  comments    Comment[]
-  deadline    DateTime?
-  createdAt   DateTime  @default(now())
+  id            String         @id @default(uuid())
+  title         String
+  description   String
+  status        Int            @default(0)
+  createdById   String
+  createdBy     User           @relation("CreatedBy", fields: [createdById], references: [id])
+  assigneeId    String?
+  assignee      User?          @relation("AssignedTo", fields: [assigneeId], references: [id])
+  boardId       String?
+  board         Board?         @relation(fields: [boardId], references: [id])
+  comments      Comment[]
+  notifications Notification[]
+  deadline      DateTime?
+  createdAt     DateTime       @default(now())
 }
 
 model Comment {
   id        String    @id @default(uuid())
-  content   String
+  content   String    @db.Text
   authorId  String
   author    User      @relation(fields: [authorId], references: [id])
   taskId    String
@@ -55,4 +57,15 @@ model Comment {
   parent    Comment?  @relation("Replies", fields: [parentId], references: [id])
   replies   Comment[] @relation("Replies")
   createdAt DateTime  @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   String
+  read      Boolean  @default(false)
+  taskId    String?
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
 }

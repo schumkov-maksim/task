@@ -5,18 +5,20 @@ export default defineEventHandler(async (event) => {
   const parentId = getRouterParam(event, "id")!;
   const { content } = await readBody(event);
 
-  if (!content?.trim()) {
+  const stripped = (content ?? "").replace(/<[^>]*>/g, "").trim();
+  if (!stripped) {
     throw createError({ statusCode: 400, message: "Antwortinhalt erforderlich." });
   }
 
-  const parent = await prisma.comment.findUnique({ where: { id: parentId } });
-  if (!parent) {
-    throw createError({ statusCode: 404, message: "Kommentar nicht gefunden." });
-  }
+  const parent = await prisma.comment.findUnique({
+    where: { id: parentId },
+    include: { task: { select: { title: true } } },
+  });
+  if (!parent) throw createError({ statusCode: 404, message: "Kommentar nicht gefunden." });
 
-  return await prisma.comment.create({
+  const reply = await prisma.comment.create({
     data: {
-      content: content.trim(),
+      content,
       authorId: session.user.id,
       taskId: parent.taskId,
       parentId,
@@ -26,4 +28,16 @@ export default defineEventHandler(async (event) => {
       replies: { include: { author: { select: { id: true, name: true } } } },
     },
   });
+
+  if (parent.authorId !== session.user.id) {
+    await prisma.notification.create({
+      data: {
+        userId: parent.authorId,
+        message: `Neue Antwort auf deinen Kommentar in "${parent.task.title}"`,
+        taskId: parent.taskId,
+      },
+    });
+  }
+
+  return reply;
 });

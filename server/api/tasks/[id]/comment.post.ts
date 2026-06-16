@@ -5,15 +5,34 @@ export default defineEventHandler(async (event) => {
   const taskId = getRouterParam(event, "id")!;
   const { content } = await readBody(event);
 
-  if (!content?.trim()) {
+  const stripped = (content ?? "").replace(/<[^>]*>/g, "").trim();
+  if (!stripped) {
     throw createError({ statusCode: 400, message: "Kommentarinhalt erforderlich." });
   }
 
-  return await prisma.comment.create({
-    data: { content: content.trim(), authorId: session.user.id, taskId },
+  const task = await prisma.task.findUnique({
+    where: { id: taskId },
+    select: { assigneeId: true, title: true },
+  });
+  if (!task) throw createError({ statusCode: 404, message: "Aufgabe nicht gefunden." });
+
+  const comment = await prisma.comment.create({
+    data: { content, authorId: session.user.id, taskId },
     include: {
       author: { select: { id: true, name: true } },
       replies: { include: { author: { select: { id: true, name: true } } } },
     },
   });
+
+  if (task.assigneeId && task.assigneeId !== session.user.id) {
+    await prisma.notification.create({
+      data: {
+        userId: task.assigneeId,
+        message: `Neuer Kommentar in "${task.title}"`,
+        taskId,
+      },
+    });
+  }
+
+  return comment;
 });

@@ -3,16 +3,20 @@ import { ref, computed } from "vue";
 import type { Task } from "~/types/Task";
 import type { User } from "~/types/User";
 import type { Board } from "~/types/Board";
+import type { Notification } from "~/types/Notification";
 
 export const useTaskStore = defineStore("store", () => {
   const showDrawer = ref(false);
   const tasks = ref<Task[]>([]);
   const users = ref<User[]>([]);
   const boards = ref<Board[]>([]);
+  const notifications = ref<Notification[]>([]);
   const showTaskOverview = ref(false);
   const activeTaskId = ref("");
   const activeBoardId = ref<string | null>(null);
   const sidebarOpen = ref(false);
+
+  const unreadCount = computed(() => notifications.value.filter((n) => !n.read).length);
 
   const title = ref("");
   const text = ref("");
@@ -127,11 +131,22 @@ export const useTaskStore = defineStore("store", () => {
     await fetchTasks();
   };
 
+  const fetchNotifications = async () => {
+    notifications.value = await $fetch<Notification[]>("/api/notifications");
+  };
+
+  const markNotificationsRead = async () => {
+    await $fetch("/api/notifications/read", { method: "POST" });
+    notifications.value = notifications.value.map((n) => ({ ...n, read: true }));
+  };
+
   return {
     showDrawer,
     tasks,
     users,
     boards,
+    notifications,
+    unreadCount,
     activeBoardId,
     sidebarOpen,
     visibleTasks,
@@ -158,6 +173,8 @@ export const useTaskStore = defineStore("store", () => {
     addComment,
     updateDeadline,
     replyToComment,
+    fetchNotifications,
+    markNotificationsRead,
   };
 });
 

@@ -9,11 +9,13 @@ const replyText = ref("");
 const showReplyBox = ref(false);
 const loading = ref(false);
 
+const replyEmpty = computed(() => !replyText.value.replace(/<[^>]*>/g, "").trim());
+
 async function submitReply() {
-  if (!replyText.value.trim()) return;
+  if (replyEmpty.value) return;
   loading.value = true;
   try {
-    await store.replyToComment(props.comment.id, replyText.value.trim());
+    await store.replyToComment(props.comment.id, replyText.value);
     replyText.value = "";
     showReplyBox.value = false;
   } finally {
@@ -35,7 +37,7 @@ function formatDate(iso: string) {
 <template>
   <div :class="depth > 0 ? 'ml-5 border-l-2 border-slate-100 pl-4' : ''">
     <div class="bg-slate-50 rounded-lg px-3 py-2.5">
-      <div class="flex items-center gap-2 mb-1">
+      <div class="flex items-center gap-2 mb-2">
         <div
           class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold shrink-0"
         >
@@ -44,7 +46,8 @@ function formatDate(iso: string) {
         <span class="text-xs font-semibold text-slate-700">{{ comment.author.name }}</span>
         <span class="text-xs text-slate-400 ml-auto">{{ formatDate(comment.createdAt) }}</span>
       </div>
-      <p class="text-sm text-slate-700 leading-relaxed">{{ comment.content }}</p>
+      <!-- Render rich-text HTML -->
+      <div class="rte-output text-sm text-slate-700 leading-relaxed" v-html="comment.content" />
       <button
         v-if="depth < 3"
         @click="showReplyBox = !showReplyBox"
@@ -54,18 +57,23 @@ function formatDate(iso: string) {
       </button>
     </div>
 
-    <div v-if="showReplyBox" class="mt-2 ml-0">
-      <div class="flex gap-2">
-        <textarea
-          v-model="replyText"
-          rows="2"
-          placeholder="Antwort schreiben…"
-          class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-        />
+    <div v-if="showReplyBox" class="mt-2">
+      <ClientOnly>
+        <RteEditor v-model="replyText" placeholder="Antwort schreiben…" />
+        <template #fallback>
+          <textarea
+            v-model="replyText"
+            rows="2"
+            placeholder="Antwort schreiben…"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </template>
+      </ClientOnly>
+      <div class="flex justify-end mt-2">
         <button
-          :disabled="!replyText.trim() || loading"
+          :disabled="replyEmpty || loading"
           @click="submitReply"
-          class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-xs font-medium transition-colors cursor-pointer shrink-0"
+          class="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-xs font-medium transition-colors cursor-pointer"
         >
           Senden
         </button>
@@ -82,3 +90,29 @@ function formatDate(iso: string) {
     </div>
   </div>
 </template>
+
+<style scoped>
+@reference "tailwindcss";
+
+.rte-output :deep(ul) {
+  @apply list-disc pl-5 my-1;
+}
+.rte-output :deep(ol) {
+  @apply list-decimal pl-5 my-1;
+}
+.rte-output :deep(strong) {
+  @apply font-bold;
+}
+.rte-output :deep(em) {
+  @apply italic;
+}
+.rte-output :deep(s) {
+  @apply line-through;
+}
+.rte-output :deep(code) {
+  @apply bg-white rounded px-1 text-xs font-mono text-rose-600;
+}
+.rte-output :deep(p) {
+  @apply my-0.5;
+}
+</style>

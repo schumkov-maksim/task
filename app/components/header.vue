@@ -36,6 +36,9 @@ async function logout() {
         <span class="hidden sm:inline">Neue Aufgabe</span>
       </button>
 
+      <!-- Notifications -->
+      <NotificationPanel />
+
       <!-- User -->
       <div v-if="user" class="flex items-center gap-2">
         <div

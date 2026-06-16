@@ -13,11 +13,13 @@ const statusOptions = [
 const comment = ref("");
 const loading = ref(false);
 
+const commentEmpty = computed(() => !comment.value.replace(/<[^>]*>/g, "").trim());
+
 async function addComment() {
-  if (!comment.value.trim() || !selectedTask.value) return;
+  if (commentEmpty.value || !selectedTask.value) return;
   loading.value = true;
   try {
-    await store.addComment(selectedTask.value.id, comment.value.trim());
+    await store.addComment(selectedTask.value.id, comment.value);
     comment.value = "";
   } finally {
     loading.value = false;
@@ -164,12 +166,17 @@ async function changeDeadline(e: Event) {
             </div>
 
             <!-- Neuer Kommentar -->
-            <textarea
-              v-model="comment"
-              rows="3"
-              placeholder="Kommentar hinzufügen…"
-              class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-            />
+            <ClientOnly>
+              <RteEditor v-model="comment" placeholder="Kommentar hinzufügen…" />
+              <template #fallback>
+                <textarea
+                  v-model="comment"
+                  rows="3"
+                  placeholder="Kommentar hinzufügen…"
+                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                />
+              </template>
+            </ClientOnly>
           </div>
         </div>
 
@@ -182,7 +189,7 @@ async function changeDeadline(e: Event) {
             Schließen
           </button>
           <button
-            :disabled="!comment.trim() || loading"
+            :disabled="commentEmpty || loading"
             @click="addComment"
             class="flex-1 py-2 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium text-white transition-colors cursor-pointer"
           >

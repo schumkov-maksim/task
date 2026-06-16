@@ -4,7 +4,12 @@ definePageMeta({ middleware: "auth" });
 const store = useTaskStore();
 
 onMounted(async () => {
-  await Promise.all([store.fetchUsers(), store.fetchBoards(), store.fetchTasks()]);
+  await Promise.all([
+    store.fetchUsers(),
+    store.fetchBoards(),
+    store.fetchTasks(),
+    store.fetchNotifications(),
+  ]);
 });
 </script>
 
