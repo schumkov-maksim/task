@@ -1,4 +1,4 @@
 {
-  "framework": null,
-  "buildCommand": null
+  "buildCommand": "npx prisma generate && nuxt build",
+  "framework": "nuxtjs"
 }

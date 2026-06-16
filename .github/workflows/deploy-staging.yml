@@ -23,18 +23,19 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
-      # NITRO_PRESET=vercel → outputs to .vercel/output/ (Vercel Build Output v3)
+      # Outputs to .vercel/output/ (Vercel Build Output v3)
       - name: Build (Vercel preset)
         run: npx nuxt build
         env:
           NITRO_PRESET: vercel
 
-      # Push schema changes to the cloud DB before deploying new code
+      # Sync schema to cloud DB before new code goes live
       - name: Sync database schema
         run: npx prisma db push --skip-generate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      # Deploy prebuilt .vercel/output/ — Vercel skips its own build
       - name: Deploy to Vercel
         run: npx vercel deploy --prebuilt --prod --token ${{ secrets.VERCEL_TOKEN }}
         env:
